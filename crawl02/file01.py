@@ -2,8 +2,8 @@ import asyncio
 from playwright.async_api import async_playwright
 
 
-id= "siro9866"
-pw= "Ururu0524@@"
+id= ""
+pw= ""
 
 # 전체 화면 html
 async def get_html(url):
