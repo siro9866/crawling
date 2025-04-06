@@ -1,41 +1,53 @@
+import os
 import asyncio
 from playwright.async_api import async_playwright
+from urllib.parse import urlparse
 
-
-id= ""
-pw= ""
+id= "아이디"
+pw= "패스"
 
 # 전체 화면 html
-async def get_html(url):
+async def get_html(base_url):
+    parsed = urlparse(base_url)
+    folder_name = parsed.hostname
+    os.makedirs(folder_name, exist_ok=True)
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
-        await page.goto(url)
+        await page.goto(base_url)
         await page.wait_for_load_state("load")  # 페이지 로딩 완료까지 대기
 
         html = await page.content()
-        print(html)  # 전체 HTML 출력
+        # print(html)  # 전체 HTML 출력
+
+        # ✅ HTML 저장
+        file_path = os.path.join(folder_name, "index.html")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(html)
 
         await browser.close()
 
 # 전체 화면 스크린샷
-async def save_screenshot(url):
+async def get_screenshot(base_url):
+    parsed = urlparse(base_url)
+    os.makedirs(parsed.hostname, exist_ok=True)
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page(viewport={"width": 1280, "height": 1080})
-        await page.goto(url, wait_until="networkidle")
+        await page.goto(base_url, wait_until="networkidle")
 
         # 스크롤 끝까지 내려서 Lazy Load 유도
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         await page.wait_for_timeout(3000)  # 3초 대기 (이미지 로딩 시간)
 
         # 전체 페이지 스크린샷 저장
-        await page.screenshot(path="index.png", full_page=True)
+        await page.screenshot(path=f"{parsed.hostname}/index.png", full_page=True)
         await browser.close()
         print("스크린샷 저장완료")
 
 # 로그인
-async def login(url):
+async def login(base_url):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)  # True면 브라우저 안 보임
         page = await browser.new_page()
@@ -71,10 +83,10 @@ async def login(url):
         await browser.close()
 
 
-url = "https://news.naver.com"
-# url = "https://datalab.naver.com/shoppingInsight/sCategory.naver"
-# url = "https://nid.naver.com/nidlogin.login"
+#base_url = "https://news.naver.com"
+# base_url = "https://datalab.naver.com/shoppingInsight/sCategory.naver"
+# base_url = "https://nid.naver.com/nidlogin.login"
 
-# asyncio.run(get_html(url))
-asyncio.run(save_screenshot(url))
-# asyncio.run(login(url))
+# asyncio.run(get_html(base_url))
+#asyncio.run(get_screenshot(base_url))
+# asyncio.run(login(base_url))
