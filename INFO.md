@@ -5,6 +5,13 @@ pip install webdriver-manager
 pip install selenium-wire
 pip install blinker==1.4
 pip install setuptools
+
+-- playwright
+pip install playwright
+pip install playwright pillow
+playwright install
+
+pip install beautifulsoup4
 ```
 ```
 이슈
